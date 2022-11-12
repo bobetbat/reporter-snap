@@ -105,7 +105,7 @@ export const Form = () => {
   }
 
 
-  const onChange = (event: React..ChangeEventHandler<HTMLTextAreaElement>) => {
+  const onChange = (event: React.ChangeEventHandler<HTMLTextAreaElement>) => {
     const f = event.target && event.target.value && event.target.value
     setComment(f)
     // setFile(f)

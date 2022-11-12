@@ -5,7 +5,7 @@ import { IconButton, Stack, TextareaAutosize, Typography } from '@mui/material';
 import ThumbDownRoundedIcon from '@mui/icons-material/ThumbDownRounded';
 import ThumbUpRoundedIcon from '@mui/icons-material/ThumbUpRounded';
 import styled from 'styled-components';
-import { getAccount, signTypedData } from '../utils';
+import { getAccount, signData } from '../utils';
 import { CardWrapper } from './Card';
 
 const beeUrl = "https://gateway-proxy-bee-8-0.gateway.ethswarm.org"
@@ -60,7 +60,7 @@ export const Form = () => {
 
   // should upload json file to storage
   const handleSubmit = async () => {
-    console.log('data')
+    // console.log('data')
     if (!selectedPostageStamp) return
     try {
       setUploading(true)
@@ -73,12 +73,12 @@ export const Form = () => {
         liked: like, // true false
         reporter_address: account, // string | null
       }
-      console.log('data', data)
+      // console.log('data', [account, data])
       if (data.contract_address !== null && data.reporter_address !== null) {
         throw new Error('contract_address or reporter_address not provided')
       }
 
-      const signature = await signTypedData(data)
+      const signature = await signData([account, JSON.stringify(data)])
       console.log('signature', signature)
       const { reference } = await bee.uploadFile(selectedPostageStamp, JSON.stringify({ ...data, signature }))
       console.log('reference', reference)

@@ -19,9 +19,9 @@ export const isFlask = async () => {
   }
 };
 
-export const signTypedData = async (params: any): Promise<any> => {
+export const signData = async (params: string[]): Promise<any> => {
   return (await window.ethereum.request({
-    method: 'eth_signTypedData',
+    method: 'personal_sign',
     params: params
   }))
 };

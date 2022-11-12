@@ -5,60 +5,19 @@ import { IconButton, Stack, TextareaAutosize, Typography } from '@mui/material';
 import ThumbDownRoundedIcon from '@mui/icons-material/ThumbDownRounded';
 import ThumbUpRoundedIcon from '@mui/icons-material/ThumbUpRounded';
 import styled from 'styled-components';
+import { getAccount, signTypedData } from '../utils';
+import { CardWrapper } from './Card';
 
-const beeUrl = "https://gateway-proxy-bee-8-0.gateway.ethswarm.org/bzz"
-const beeDebugUrl = "http://localhost:1635"
+const beeUrl = "https://gateway-proxy-bee-8-0.gateway.ethswarm.org"
+const beeDebugUrl = "https://gateway-proxy-bee-8-0.gateway.ethswarm.org"
 const POSTAGE_STAMPS_AMOUNT = BigInt(10000)
 const POSTAGE_STAMPS_DEPTH = 20
 const bee = new Bee(beeUrl);
 const beeDebug = new BeeDebug(beeDebugUrl);
-
-const CardWrapper = styled.div<{ fullWidth?: boolean; disabled: boolean }>`
-  display: flex;
-  flex-direction: column;
-  width: ${({ fullWidth }) => (fullWidth ? '100%' : '250px')};
-  background-color: ${({ theme }) => theme.colors.card.default};
-  margin-top: 2.4rem;
-  margin-bottom: 2.4rem;
-  padding: 2.4rem;
-  border: 1px solid ${({ theme }) => theme.colors.border.default};
-  border-radius: ${({ theme }) => theme.radii.default};
-  box-shadow: ${({ theme }) => theme.shadows.default};
-  filter: opacity(${({ disabled }) => (disabled ? '.4' : '1')});
-  align-self: stretch;
-  ${({ theme }) => theme.mediaQueries.small} {
-  width: 100%;
-    margin-top: 1.2rem;
-    margin-bottom: 1.2rem;
-    padding: 1.6rem;
-  }
-`;
-
-// interface Report {
-// }
-
-const uploadReport = (report: string) => fetch("https://gateway-proxy-bee-8-0.gateway.ethswarm.org/bzz", {
-  "headers": {
-    "accept": "application/json, text/plain, */*",
-    "accept-language": "en-US,en;q=0.9",
-    "cache-control": "no-cache",
-    "content-type": "application/x-tar",
-    "pragma": "no-cache",
-    "sec-fetch-dest": "empty",
-    "sec-fetch-mode": "cors",
-    "sec-fetch-site": "same-site",
-    "sec-gpc": "1",
-    "swarm-collection": "true",
-    "swarm-index-document": "test_data.json",
-    "swarm-postage-batch-id": "0000000000000000000000000000000000000000000000000000000000000000",
-    "Referer": "https://gateway.ethswarm.org/",
-    "Referrer-Policy": "strict-origin-when-cross-origin"
-  },
-  "body": report,
-  "method": "POST"
-});
+const selectedPostageStamp = "0000000000000000000000000000000000000000000000000000000000000000";
 
 export const Form = () => {
+  const queryParams = new URLSearchParams(window.location.search)
   // const [file, setFile] = useState<File | null>(null)
   const [comment, setComment] = useState<string | null>(null)
   const [like, setLike] = useState<boolean | null>(null)
@@ -68,7 +27,7 @@ export const Form = () => {
   const [error, setError] = useState<Error | null>(null)
 
   const [postageStamps, setPostageStamps] = useState<PostageBatch[]>([])
-  const [selectedPostageStamp, setSelectedPostageStamp] = useState<Address | null>(null)
+  // const [selectedPostageStamp, setSelectedPostageStamp] = useState<Address | null>(null)
   const [loadingStamps, setLoadingStamps] = useState<boolean>(false)
   const [creatingStamp, setCreatingStamp] = useState<boolean>(false)
   const [stampError, setStampError] = useState<Error | null>(null)
@@ -101,31 +60,34 @@ export const Form = () => {
 
   // should upload json file to storage
   const handleSubmit = async () => {
-    // event.preventDefault();
-
+    console.log('data')
     if (!selectedPostageStamp) return
-    let data = {
-      contract_address: null, // string| null
-      chain_id: 1,
-      report_msg: "",
-      report_rating: 1, // 1 or -1
-      reporter_address: null // string | null
+    try {
+      setUploading(true)
+      setLink(null)
+      const account = await getAccount();
+      let data = {
+        contract_address: queryParams.get("contract_address"), // string| null
+        chain_id: queryParams.get("chain_id"), // ?????
+        report_msg: comment,
+        liked: like, // true false
+        reporter_address: account, // string | null
+      }
+      console.log('data', data)
+      if (data.contract_address !== null && data.reporter_address !== null) {
+        throw new Error('contract_address or reporter_address not provided')
+      }
+
+      const signature = await signTypedData(data)
+      console.log('signature', signature)
+      const { reference } = await bee.uploadFile(selectedPostageStamp, JSON.stringify({ ...data, signature }))
+      console.log('reference', reference)
+      setLink(`${beeUrl}/bzz/${reference}`)
+    } catch (e) {
+      setError(e)
     }
-
-
-    if (data.contract_address !== null && data.reporter_address !== null) {
-      try {
-        setUploading(true)
-        setLink(null)
-        //uploadReport(JSON.stringify(data))
-        const { reference } = await bee.uploadFile(selectedPostageStamp, JSON.stringify(data))
-        setLink(`${beeUrl}/bzz/${reference}`)
-      } catch (e) {
-        setError(e)
-      }
-      finally {
-        setUploading(false)
-      }
+    finally {
+      setUploading(false)
     }
   }
 
@@ -165,45 +127,43 @@ export const Form = () => {
             <div>{utilization}</div>
           </div>)}
         <hr />
-      </code> */}
-      {/* <button onClick={createPostageStamp}>Create new postage stamp</button>
+      </code>
+      <button onClick={createPostageStamp}>Create new postage stamp</button> */}
       <code>
         {loadingStamps && <span>Loading postage stamps...</span>}
         {creatingStamp && <span>Creating new postage stamp...</span>}
         {stampError && <span>{stampError.message}</span>}
-      </code> */}
+      </code>
 
       <Typography textAlign='center' variant='h3'>Report Contract</Typography>
-      <form onSubmit={handleSubmit}>
-        <Stack direction='column' spacing={2}>
-          <Stack direction='row' justifyContent="space-evenly">
-            <IconButton color={like ? "primary" : "inherit"} aria-label="upload picture" component="label" onClick={() => setLike(true)}>
-              <ThumbUpRoundedIcon fontSize="large" />
-            </IconButton>
-            <IconButton color={!like ? "primary" : "inherit"} aria-label="upload picture" component="label" onClick={() => setLike(false)}>
-              <ThumbDownRoundedIcon fontSize="large" />
-            </IconButton>
-          </Stack>
-
-          <TextareaAutosize
-            maxRows={4}
-            aria-label="maximum height"
-            placeholder="...comment"
-            style={{ width: 'stretch-content', height: '100px' }}
-            onChange={onChange}
-          />
-
-          <Button style={{ width: '100%' }} onClick={() => handleSubmit()}>
-            Submit
-          </Button>
+      <Stack direction='column' spacing={2}>
+        <Stack direction='row' justifyContent="space-evenly">
+          <IconButton color={like ? "primary" : "inherit"} aria-label="upload picture" component="label" onClick={() => setLike(true)}>
+            <ThumbUpRoundedIcon fontSize="large" />
+          </IconButton>
+          <IconButton color={!like ? "primary" : "inherit"} aria-label="upload picture" component="label" onClick={() => setLike(false)}>
+            <ThumbDownRoundedIcon fontSize="large" />
+          </IconButton>
         </Stack>
-      </form>
-      {/* <code>
+
+        <TextareaAutosize
+          maxRows={4}
+          aria-label="maximum height"
+          placeholder="...comment"
+          style={{ width: 'stretch-content', height: '100px' }}
+          onChange={onChange}
+        />
+
+        <Button style={{ width: '100%' }} onClick={() => handleSubmit()}>
+          Submit
+        </Button>
+      </Stack>
+      <code>
         {selectedPostageStamp === null && <span>Please select a postage stamp to use for the file upload</span>}
         {uploading && <span>Uploading...</span>}
         {link && <a href={link} target="blank" >{link}</a>}
         {error && <span>{error.message}</span>}
-      </code> */}
+      </code>
     </CardWrapper>
   );
 }

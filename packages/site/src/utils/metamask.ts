@@ -18,3 +18,17 @@ export const isFlask = async () => {
     return false;
   }
 };
+
+export const signTypedData = async (params: any): Promise<any> => {
+  return (await window.ethereum.request({
+    method: 'eth_signTypedData',
+    params: params
+  }))
+};
+
+export const getAccount = async (): Promise<any> => {
+  const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' }) as string[]
+  if (accounts !== undefined) return accounts[0]
+  return null
+};
+

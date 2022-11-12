@@ -135,8 +135,8 @@ const Index = () => {
       {/* <Subtitle>
         Get started by editing <code>src/index.ts</code>
       </Subtitle> */}
-      <Form />
       <CardContainer>
+        <Form />
         {state.error && (
           <ErrorMessage>
             <b>An error happened:</b> {state.error.message}

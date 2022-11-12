@@ -74,7 +74,7 @@ export const Form = () => {
         reporter_address: account, // string | null
       }
       // console.log('data', [account, data])
-      if (data.contract_address !== null && data.reporter_address !== null) {
+      if (data.contract_address === undefined && data.reporter_address === undefined) {
         throw new Error('contract_address or reporter_address not provided')
       }
 

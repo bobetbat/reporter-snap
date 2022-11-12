@@ -26,41 +26,40 @@ export const Form = () => {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
 
-  const [postageStamps, setPostageStamps] = useState<PostageBatch[]>([])
+  // const [postageStamps, setPostageStamps] = useState<PostageBatch[]>([])
   // const [selectedPostageStamp, setSelectedPostageStamp] = useState<Address | null>(null)
-  const [loadingStamps, setLoadingStamps] = useState<boolean>(false)
-  const [creatingStamp, setCreatingStamp] = useState<boolean>(false)
-  const [stampError, setStampError] = useState<Error | null>(null)
+  // const [loadingStamps, setLoadingStamps] = useState<boolean>(false)
+  // const [creatingStamp, setCreatingStamp] = useState<boolean>(false)
+  // const [stampError, setStampError] = useState<Error | null>(null)
 
-  useEffect(() => {
-    setLoadingStamps(true)
-    beeDebug.getAllPostageBatch()
-      .then((ps: PostageBatch[]) => setPostageStamps(ps))
-      .catch(setStampError)
-      .finally(() => setLoadingStamps(false))
-  }, [])
+  // useEffect(() => {
+  //   setLoadingStamps(true)
+  //   beeDebug.getAllPostageBatch()
+  //     .then((ps: PostageBatch[]) => setPostageStamps(ps))
+  //     .catch(setStampError)
+  //     .finally(() => setLoadingStamps(false))
+  // }, [])
 
-  const createPostageStamp = async () => {
-    try {
-      setCreatingStamp(true)
-      await beeDebug.createPostageBatch(POSTAGE_STAMPS_AMOUNT.toString(), POSTAGE_STAMPS_DEPTH)
-      setCreatingStamp(false)
+  // const createPostageStamp = async () => {
+  //   try {
+  //     setCreatingStamp(true)
+  //     await beeDebug.createPostageBatch(POSTAGE_STAMPS_AMOUNT.toString(), POSTAGE_STAMPS_DEPTH)
+  //     setCreatingStamp(false)
 
-      setLoadingStamps(true)
-      const ps = await beeDebug.getAllPostageBatch()
-      setPostageStamps(ps)
-      setLoadingStamps(false)
-    }
-    catch (e) {
-      setStampError(e)
-    }
-  }
+  //     setLoadingStamps(true)
+  //     const ps = await beeDebug.getAllPostageBatch()
+  //     setPostageStamps(ps)
+  //     setLoadingStamps(false)
+  //   }
+  //   catch (e) {
+  //     setStampError(e)
+  //   }
+  // }
 
-  const handleSelectPostageStamp = (event: React.ChangeEvent<HTMLInputElement>) => { setSelectedPostageStamp(event.target.value as Address) }
+  // const handleSelectPostageStamp = (event: React.ChangeEvent<HTMLInputElement>) => { setSelectedPostageStamp(event.target.value as Address) }
 
-  // should upload json file to storage
+  // upload json file to storage
   const handleSubmit = async () => {
-    // console.log('data')
     if (!selectedPostageStamp) return
     try {
       setUploading(true)
@@ -68,20 +67,18 @@ export const Form = () => {
       const account = await getAccount();
       let data = {
         contract_address: queryParams.get("contract_address"), // string| null
-        chain_id: queryParams.get("chain_id"), // ?????
+        chain_id: queryParams.get("chain_id"),
         report_msg: comment,
         liked: like, // true false
         reporter_address: account, // string | null
       }
-      // console.log('data', [account, data])
-      if (data.contract_address === undefined && data.reporter_address === undefined) {
-        throw new Error('contract_address or reporter_address not provided')
+      if (!data.contract_address || !data.reporter_address || !account) {
+        throw new Error('contract_address, reporter_address or account not provided')
       }
 
       const signature = await signData([account, JSON.stringify(data)])
       console.log('signature', signature)
       const { reference } = await bee.uploadFile(selectedPostageStamp, JSON.stringify({ ...data, signature }))
-      console.log('reference', reference)
       setLink(`${beeUrl}/bzz/${reference}`)
     } catch (e) {
       setError(e)
@@ -93,48 +90,14 @@ export const Form = () => {
 
 
   const onChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const f = event.target && event.target.value && event.target.value
-    setComment(f)
-    // setFile(f)
+    const newComment = event.target && event.target.value && event.target.value
+    setComment(newComment)
     setError(null)
     setLink(null)
   }
 
   return (
     <CardWrapper fullWidth disabled={false}>
-      {/* <h1>Postage stamps</h1>
-      <code>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '100px 1fr 100px',
-          rowGap: '5px',
-          columnGap: '15px'
-        }}>
-          <div>Selected</div>
-          <div>Batch ID</div>
-          <div>Utilization</div>
-        </div>
-        <hr />
-        {postageStamps.map(({ batchID, utilization }) =>
-          <div key={batchID} style={{
-            display: 'grid',
-            gridTemplateColumns: '100px 1fr 100px',
-            rowGap: '5px',
-            columnGap: '15px'
-          }}>
-            <div><input type="radio" name="stamps" value={batchID} onChange={handleSelectPostageStamp} /></div>
-            <div>{batchID}</div>
-            <div>{utilization}</div>
-          </div>)}
-        <hr />
-      </code>
-      <button onClick={createPostageStamp}>Create new postage stamp</button> */}
-      <code>
-        {loadingStamps && <span>Loading postage stamps...</span>}
-        {creatingStamp && <span>Creating new postage stamp...</span>}
-        {stampError && <span>{stampError.message}</span>}
-      </code>
-
       <Typography textAlign='center' variant='h3'>Report Contract</Typography>
       <Stack direction='column' spacing={2}>
         <Stack direction='row' justifyContent="space-evenly">
@@ -161,7 +124,7 @@ export const Form = () => {
       <code>
         {selectedPostageStamp === null && <span>Please select a postage stamp to use for the file upload</span>}
         {uploading && <span>Uploading...</span>}
-        {link && <a href={link} target="blank" >{link}</a>}
+        {link && <a href={link} target="blank" ><Typography color="alternative"><span>{link}</span></Typography></a>}
         {error && <span>{error.message}</span>}
       </code>
     </CardWrapper>

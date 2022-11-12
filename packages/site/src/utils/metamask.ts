@@ -26,7 +26,7 @@ export const signData = async (params: string[]): Promise<any> => {
   }))
 };
 
-export const getAccount = async (): Promise<any> => {
+export const getAccount = async (): Promise<string | null> => {
   const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' }) as string[]
   if (accounts !== undefined) return accounts[0]
   return null

@@ -1,41 +1,92 @@
-import { OnRpcRequestHandler } from '@metamask/snap-types';
+import { OnTransactionHandler } from '@metamask/snap-types';
 
-/**
- * Get a message from the origin. For demonstration purposes only.
- *
- * @param originString - The origin string.
- * @returns A message based on the origin.
- */
-export const getMessage = (originString: string): string =>
-  `Hello, ${originString}!`;
+const SWARM_URL = 'https://gateway-proxy-bee-8-0.gateway.ethswarm.org/bzz/07f7ff4017b9a4bee4156dae4367b6adad807e71c29e8d51a6bd4aed8d3bb0ad/';
+const CHESHIRE_API = 'https://api.cheshire.wtf/v1/';
 
-/**
- * Handle incoming JSON-RPC requests, sent through `wallet_invokeSnap`.
- *
- * @param args - The request handler args as object.
- * @param args.origin - The origin of the request, e.g., the website that
- * invoked the snap.
- * @param args.request - A validated JSON-RPC request object.
- * @returns `null` if the request succeeded.
- * @throws If the request method is not valid for this snap.
- * @throws If the `snap_confirm` call failed.
- */
-export const onRpcRequest: OnRpcRequestHandler = ({ origin, request }) => {
-  switch (request.method) {
-    case 'hello':
-      return wallet.request({
-        method: 'snap_confirm',
-        params: [
-          {
-            prompt: getMessage(origin),
-            description:
-              'This custom confirmation is just for display purposes.',
-            textAreaContent:
-              'But you can edit the snap source code to make it do something, if you want to!',
-          },
-        ],
-      });
-    default:
-      throw new Error('Method not found.');
+export const onTransaction: OnTransactionHandler = async ({
+  transaction,
+  chainId,
+}) => {
+  const { to } = transaction;
+
+  const response = await fetch(
+    SWARM_URL,
+    {
+      method: 'get',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Unable to fetch from Swarm url "${chainId}": ${response.status} ${response.statusText}.`,
+    );
   }
+
+  const swarmArray = await response.json()
+
+  let likes = 0
+  let dislikes = 0
+  
+  let reportsMessage = ''
+  let reports = swarmArray.filter((record: any) => {
+    return (record.chain_id == chainId.split(':')[1] && record.contract_address == to)
+  })
+  
+  // SBT filtering
+  reports = await Promise.all(reports.map(async (record: any) => {
+    try {
+      const response = await fetch(
+        `${CHESHIRE_API}${record.reporter_address}`,
+        {
+          method: 'get',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+
+      const userData = await response.json()
+
+      if (userData.providers && userData.providers.length > 0) {
+        const verifiedProviders = userData.providers.filter((provider: any) => provider.result)
+        if (verifiedProviders.length > 0) return record 
+      }
+    } catch (e) {
+      return null
+    }
+    return null
+  }))
+
+
+  reports = reports.filter((record: any) => record)
+  
+
+
+  reports.map((record:any) => {
+    if (record.liked) {
+      likes += 1
+    } else {
+      dislikes += 1
+    }
+
+    reportsMessage += `${record.report_msg}\n\n`
+
+    return record.report_msg
+  })
+
+
+  // erecover of signature hash with SubtleCrypto
+
+
+  return {
+    insights: {
+      Likes: `${likes} 👍`,
+      Dislikes: `${dislikes} 👎`,
+      Reports: reportsMessage,
+      Visit: `Review this contract here: http://placehereappurl.com/?contract_address=${to}&chain_id=${chainId.split(':')[1]}`
+    },
+  };
 };

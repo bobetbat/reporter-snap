@@ -14,6 +14,7 @@ import {
   SendHelloButton,
   Card,
 } from '../components';
+import { Form } from '../components/Form';
 
 const Container = styled.div`
   display: flex;
@@ -129,11 +130,12 @@ const Index = () => {
   return (
     <Container>
       <Heading>
-        Welcome to <Span>template-snap</Span>
+        Welcome to <Span>Reporter snap</Span>
       </Heading>
-      <Subtitle>
+      {/* <Subtitle>
         Get started by editing <code>src/index.ts</code>
-      </Subtitle>
+      </Subtitle> */}
+      <Form />
       <CardContainer>
         {state.error && (
           <ErrorMessage>

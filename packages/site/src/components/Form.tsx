@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Address, Bee, BeeDebug, PostageBatch } from '@ethersphere/bee-js';
-import { Button } from './Buttons'
+import { Button } from './Buttons';
 import { IconButton, Stack, TextareaAutosize, Typography } from '@mui/material';
 import ThumbDownRoundedIcon from '@mui/icons-material/ThumbDownRounded';
 import ThumbUpRoundedIcon from '@mui/icons-material/ThumbUpRounded';
@@ -8,23 +8,24 @@ import styled from 'styled-components';
 import { getAccount, signData } from '../utils';
 import { CardWrapper } from './Card';
 
-const beeUrl = "https://gateway-proxy-bee-8-0.gateway.ethswarm.org"
-const beeDebugUrl = "https://gateway-proxy-bee-8-0.gateway.ethswarm.org"
-const POSTAGE_STAMPS_AMOUNT = BigInt(10000)
-const POSTAGE_STAMPS_DEPTH = 20
+const beeUrl = 'https://gateway-proxy-bee-8-0.gateway.ethswarm.org';
+const beeDebugUrl = 'https://gateway-proxy-bee-8-0.gateway.ethswarm.org';
+const POSTAGE_STAMPS_AMOUNT = BigInt(10000);
+const POSTAGE_STAMPS_DEPTH = 20;
 const bee = new Bee(beeUrl);
 const beeDebug = new BeeDebug(beeDebugUrl);
-const selectedPostageStamp = "0000000000000000000000000000000000000000000000000000000000000000";
+const selectedPostageStamp =
+  '0000000000000000000000000000000000000000000000000000000000000000';
 
 export const Form = () => {
-  const queryParams = new URLSearchParams(window.location.search)
+  const queryParams = new URLSearchParams(window.location.search);
   // const [file, setFile] = useState<File | null>(null)
-  const [comment, setComment] = useState<string | null>(null)
-  const [like, setLike] = useState<boolean | null>(null)
+  const [comment, setComment] = useState<string | null>(null);
+  const [like, setLike] = useState<boolean | null>(null);
 
-  const [link, setLink] = useState<string | null>(null)
-  const [uploading, setUploading] = useState(false)
-  const [error, setError] = useState<Error | null>(null)
+  const [link, setLink] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
   // const [postageStamps, setPostageStamps] = useState<PostageBatch[]>([])
   // const [selectedPostageStamp, setSelectedPostageStamp] = useState<Address | null>(null)
@@ -60,51 +61,66 @@ export const Form = () => {
 
   // upload json file to storage
   const handleSubmit = async () => {
-    if (!selectedPostageStamp) return
+    if (!selectedPostageStamp) return;
     try {
-      setUploading(true)
-      setLink(null)
+      setUploading(true);
+      setLink(null);
       const account = await getAccount();
       let data = {
-        contract_address: queryParams.get("contract_address"), // string| null
-        chain_id: queryParams.get("chain_id"),
+        contract_address: queryParams.get('contract_address'), // string| null
+        chain_id: queryParams.get('chain_id'),
         report_msg: comment,
         liked: like, // true false
         reporter_address: account, // string | null
-      }
+      };
       if (!data.contract_address || !data.reporter_address || !account) {
-        throw new Error('contract_address, reporter_address or account not provided')
+        throw new Error(
+          'contract_address, reporter_address or account not provided',
+        );
       }
 
-      const signature = await signData([account, JSON.stringify(data)])
-      console.log('signature', signature)
-      const { reference } = await bee.uploadFile(selectedPostageStamp, JSON.stringify({ ...data, signature }))
-      setLink(`${beeUrl}/bzz/${reference}`)
+      const signature = await signData([account, JSON.stringify(data)]);
+      console.log('signature', signature);
+      const { reference } = await bee.uploadFile(
+        selectedPostageStamp,
+        JSON.stringify({ ...data, signature }),
+      );
+      setLink(`${beeUrl}/bzz/${reference}`);
     } catch (e) {
-      setError(e)
+      setError(e);
+    } finally {
+      setUploading(false);
     }
-    finally {
-      setUploading(false)
-    }
-  }
-
+  };
 
   const onChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newComment = event.target && event.target.value && event.target.value
-    setComment(newComment)
-    setError(null)
-    setLink(null)
-  }
+    const newComment = event.target && event.target.value && event.target.value;
+    setComment(newComment);
+    setError(null);
+    setLink(null);
+  };
 
   return (
     <CardWrapper fullWidth disabled={false}>
-      <Typography textAlign='center' variant='h3'>Report Contract</Typography>
-      <Stack direction='column' spacing={2}>
-        <Stack direction='row' justifyContent="space-evenly">
-          <IconButton color={like ? "primary" : "inherit"} aria-label="upload picture" component="label" onClick={() => setLike(true)}>
+      <Typography textAlign="center" variant="h3">
+        Report Contract
+      </Typography>
+      <Stack direction="column" spacing={2}>
+        <Stack direction="row" justifyContent="space-evenly">
+          <IconButton
+            color={like ? 'primary' : 'inherit'}
+            aria-label="upload picture"
+            component="label"
+            onClick={() => setLike(true)}
+          >
             <ThumbUpRoundedIcon fontSize="large" />
           </IconButton>
-          <IconButton color={!like ? "primary" : "inherit"} aria-label="upload picture" component="label" onClick={() => setLike(false)}>
+          <IconButton
+            color={!like ? 'primary' : 'inherit'}
+            aria-label="upload picture"
+            component="label"
+            onClick={() => setLike(false)}
+          >
             <ThumbDownRoundedIcon fontSize="large" />
           </IconButton>
         </Stack>
@@ -122,11 +138,19 @@ export const Form = () => {
         </Button>
       </Stack>
       <code>
-        {selectedPostageStamp === null && <span>Please select a postage stamp to use for the file upload</span>}
+        {selectedPostageStamp === null && (
+          <span>Please select a postage stamp to use for the file upload</span>
+        )}
         {uploading && <span>Uploading...</span>}
-        {link && <a href={link} target="blank" ><Typography color="alternative"><span>{link}</span></Typography></a>}
+        {link && (
+          <a href={link} target="blank">
+            <Typography color="alternative">
+              <span>{link}</span>
+            </Typography>
+          </a>
+        )}
         {error && <span>{error.message}</span>}
       </code>
     </CardWrapper>
   );
-}
+};

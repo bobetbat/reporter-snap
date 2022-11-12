@@ -11,7 +11,10 @@ type CardProps = {
   fullWidth?: boolean;
 };
 
-export const CardWrapper = styled.div<{ fullWidth?: boolean; disabled: boolean }>`
+export const CardWrapper = styled.div<{
+  fullWidth?: boolean;
+  disabled: boolean;
+}>`
   display: flex;
   flex-direction: column;
   width: ${({ fullWidth }) => (fullWidth ? '100%' : '250px')};

@@ -20,15 +20,16 @@ export const isFlask = async () => {
 };
 
 export const signData = async (params: string[]): Promise<any> => {
-  return (await window.ethereum.request({
+  return await window.ethereum.request({
     method: 'personal_sign',
-    params: params
-  }))
+    params: params,
+  });
 };
 
 export const getAccount = async (): Promise<string | null> => {
-  const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' }) as string[]
-  if (accounts !== undefined) return accounts[0]
-  return null
+  const accounts = (await window.ethereum.request({
+    method: 'eth_requestAccounts',
+  })) as string[];
+  if (accounts !== undefined) return accounts[0];
+  return null;
 };
-

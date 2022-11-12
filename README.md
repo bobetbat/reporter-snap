@@ -14,7 +14,6 @@ To interact with (your) Snaps, you will need to install [MetaMask Flask](https:/
 yarn install && yarn start
 ```
 
-
 ### Testing and Linting
 
 Run `yarn test` to run the tests once.

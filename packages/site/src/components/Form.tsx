@@ -6,7 +6,7 @@ import ThumbDownRoundedIcon from '@mui/icons-material/ThumbDownRounded';
 import ThumbUpRoundedIcon from '@mui/icons-material/ThumbUpRounded';
 import styled from 'styled-components';
 
-const beeUrl = "http://localhost:1633"
+const beeUrl = "https://gateway-proxy-bee-8-0.gateway.ethswarm.org/bzz"
 const beeDebugUrl = "http://localhost:1635"
 const POSTAGE_STAMPS_AMOUNT = BigInt(10000)
 const POSTAGE_STAMPS_DEPTH = 20
@@ -33,6 +33,30 @@ const CardWrapper = styled.div<{ fullWidth?: boolean; disabled: boolean }>`
     padding: 1.6rem;
   }
 `;
+
+// interface Report {
+// }
+
+const uploadReport = (report: string) => fetch("https://gateway-proxy-bee-8-0.gateway.ethswarm.org/bzz", {
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "accept-language": "en-US,en;q=0.9",
+    "cache-control": "no-cache",
+    "content-type": "application/x-tar",
+    "pragma": "no-cache",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-site",
+    "sec-gpc": "1",
+    "swarm-collection": "true",
+    "swarm-index-document": "test_data.json",
+    "swarm-postage-batch-id": "0000000000000000000000000000000000000000000000000000000000000000",
+    "Referer": "https://gateway.ethswarm.org/",
+    "Referrer-Policy": "strict-origin-when-cross-origin"
+  },
+  "body": report,
+  "method": "POST"
+});
 
 export const Form = () => {
   // const [file, setFile] = useState<File | null>(null)
@@ -80,19 +104,20 @@ export const Form = () => {
     // event.preventDefault();
 
     if (!selectedPostageStamp) return
-
     let data = {
-      like: like,
-      contract: null,
-      message: '',// signed????
-      sign: null // ?????
+      contract_address: null, // string| null
+      chain_id: 1,
+      report_msg: "",
+      report_rating: 1, // 1 or -1
+      reporter_address: null // string | null
     }
 
-    if (data.contract !== null && data.sign !== null) {
+
+    if (data.contract_address !== null && data.reporter_address !== null) {
       try {
         setUploading(true)
         setLink(null)
-
+        //uploadReport(JSON.stringify(data))
         const { reference } = await bee.uploadFile(selectedPostageStamp, JSON.stringify(data))
         setLink(`${beeUrl}/bzz/${reference}`)
       } catch (e) {

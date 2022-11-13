@@ -1,13 +1,13 @@
 {
   "version": "0.1.0",
   "description": "An example Snap written in TypeScript.",
-  "proposedName": "Reporter Snap",
+  "proposedName":  "MetaRate",
   "repository": {
     "type": "git",
     "url": "https://github.com/MetaMask/template-snap-monorepo.git"
   },
   "source": {
-    "shasum": "n238V0wm3FEIMTvCnm4IVSJZN7tYfOLIC5cvmjhuT+E=",
+    "shasum": "NhWRo+gj9o1i1/Usd2bDQTrSrCEgjNCKgHLomVZAFbg=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",

@@ -18,7 +18,11 @@ const selectedPostageStamp =
   '0000000000000000000000000000000000000000000000000000000000000000';
 
 export const Form = () => {
-  const queryParams = new URLSearchParams(window.location.search);
+  const isBrowser = typeof window !== 'undefined';
+
+  const queryParams = new URLSearchParams(
+    isBrowser ? window.location.search : '',
+  );
   // const [file, setFile] = useState<File | null>(null)
   const [comment, setComment] = useState<string | null>(null);
   const [like, setLike] = useState<boolean | null>(null);

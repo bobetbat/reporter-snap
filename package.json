@@ -46,12 +46,5 @@
   "packageManager": "yarn@3.2.1",
   "engines": {
     "node": ">=16.0.0"
-  },
-  "dependencies": {
-    "@emotion/react": "^11.10.5",
-    "@emotion/styled": "^11.10.5",
-    "@ethersphere/bee-js": "^5.1.0",
-    "@mui/icons-material": "^5.10.9",
-    "@mui/material": "^5.10.13"
   }
 }

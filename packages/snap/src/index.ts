@@ -1,12 +1,11 @@
 import { OnTransactionHandler } from '@metamask/snap-types';
-import { Address, Bee, BeeDebug, PostageBatch, Utils } from '@ethersphere/bee-js';
 
+// TODO: one MM snaps are in prod use bee-js instead of direct calls
 // const beeUrl = 'http://localhost:1633';
 // const bee = new Bee(beeUrl);
 
-
+// TODO: proper reference shoul be moved to env
 const SWARM_URL = 'http://localhost:1633/bzz/cc0866cd5e7245e907e40df47b1f7b9977cc4ed3a5365247a1f7a912605601e0/';
-const SWARM_URL_1 = 'http://localhost:1633/feeds/ed7690f97d0Ba1c780C67e2b60E37baEc7db9682/0000000000000000000000000000000000000000000000000000000000000000';
 
 const CHESHIRE_API = 'https://api.cheshire.wtf/v1/';
 
@@ -51,7 +50,8 @@ export const onTransaction: OnTransactionHandler = async ({
     return (record.chain_id == chainId.split(':')[1] && record.contract_address == to)
   })
   
-  // TODO: enable soulbound token verification once provider is up again
+  // TODO: enable humanity verification with soulbound tokens once provider is up again
+
   // SBT filtering
   // reports = await Promise.all(reports.map(async (record: any) => {
   //   try {

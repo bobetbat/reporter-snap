@@ -1,15 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Address, Bee, BeeDebug, PostageBatch, Utils } from '@ethersphere/bee-js';
+import React, { useState } from 'react';
+import { Bee, BeeDebug, Utils } from '@ethersphere/bee-js';
 import { Button } from './Buttons';
 import { IconButton, Stack, TextareaAutosize, Typography } from '@mui/material';
 import ThumbDownRoundedIcon from '@mui/icons-material/ThumbDownRounded';
 import ThumbUpRoundedIcon from '@mui/icons-material/ThumbUpRounded';
-import styled from 'styled-components';
-import { getAccount, signData } from '../utils';
-import { CardWrapper } from './Card';
 
+// TODO: move to env
 const beeUrl = 'http://localhost:1633';
-const beeDebugUrl = 'https://gateway-proxy-bee-8-0.gateway.ethswarm.org';
+// const beeDebugUrl = 'https://gateway-proxy-bee-8-0.gateway.ethswarm.org';
 const POSTAGE_STAMPS_AMOUNT = BigInt(10000);
 const POSTAGE_STAMPS_DEPTH = 20;
 const bee = new Bee(beeUrl);
@@ -31,7 +29,6 @@ export const Form = () => {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  /
 
   // const handleSelectPostageStamp = (event: React.ChangeEvent<HTMLInputElement>) => { setSelectedPostageStamp(event.target.value as Address) }
 
@@ -46,6 +43,7 @@ export const Form = () => {
 
       const signer = await Utils.makeEthereumWalletSigner(window.ethereum)
       
+      // TODO: move to env
       const topic = '0000000000000000000000000000000000000000000000000000000000000000'
       const owner = '0xed7690f97d0Ba1c780C67e2b60E37baEc7db9682'
       const reference = await bee.createFeedManifest(selectedPostageStamp, 'sequence', topic, signer.address)
@@ -56,7 +54,7 @@ export const Form = () => {
       );
       console.log(feed_data)
 
-      let report = {
+      let user_review = {
         contract_address: queryParams.get('contract_address'), // string| null
         chain_id: queryParams.get('chain_id'),
         report_msg: comment,
@@ -64,45 +62,18 @@ export const Form = () => {
         reporter_address: signer.address, // string | null
       };
 
-      let ss = [...feed_data, report]
-      // let aa = ss.toString()
-      // console.log(`after: ${aa}`)
-      // const tre = bee.createFeedManifest('6f09f5726fdccccc5ad1e8ac7f411fff0cb8b8e89d471d3244f5ceee42c7eaab', 'sequence', topic, owner)
-      // console.log(tre)
+      let updated_feed = [...feed_data, user_review]
+      
       const writer = bee.makeFeedWriter('sequence', topic, signer)
 
-      let axx = await bee.setJsonFeed(
+      let ref = await bee.setJsonFeed(
         selectedPostageStamp,
         topic, 
-        ss, 
+        updated_feed, 
         { signer: signer }
       )
-      // const swarmArray = await axx. .json()
-      console.log(`wtf: ${axx}`)
 
-      // const feed_data = await bee.getJsonFeed(
-      //   topic, 
-      //   { signer: signer }
-      // )
-      // console.log(feed_data)
-      // const { reference } = await bee.uploadFile(
-      //   selectedPostageStamp,
-      //   // JSON.stringify({ ...b }),
-      //   JSON.stringify([
-      //     {
-      //         "contract_address": "0x10ed43c718714eb63d5aa57b78b54704e256024e",
-      //         "chain_id": 38,
-      //         "report_msg": "my fancy report",
-      //         "liked": false,
-      //         "reporter_address": "0x783dF2DEF14BF6afE306e8dbd159536d0c546Df1"
-      //     }
-      // ])
-      // );
-      // console.log(reference)
-      // const resp = await writer.upload(selectedPostageStamp, "ad17b5c5570ab393b1f7b70949674e6f34e77bb35b656c1c799d6be14be224c5")//reference)
-      // console.log(resp)
-      // const tt = new Bee(beeUrl);
-      // console.log(feedUpdate.reference)
+      console.log(ref)
       // if (!data.contract_address || !data.reporter_address || !account) {
       //   throw new Error(
       //     'contract_address, reporter_address or account not provided',
@@ -116,7 +87,6 @@ export const Form = () => {
       //   JSON.stringify({ ...data, signature }),
       // );
 
-      // const res = await fetch(,'')
       // setLink(`${beeUrl}/bzz/${resp}`);
     } catch (e) {
       setError(e);

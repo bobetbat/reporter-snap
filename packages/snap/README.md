@@ -1,14 +1,13 @@
-# TypeScript Example Snap
+# Reporter snap
 
-This Snap demonstrates how to develop a Snap with TypeScript.
+This snaps uses transaction insights to show rating and reviews of Smart Contracts.
+
+![snap example](packages/snap/images/snap_example.jpeg)
 
 ## Notes
 
-- Babel is used for transpiling TypeScript to JavaScript, so when building with the CLI,
-  `transpilationMode` must be set to `localOnly` (default) or `localAndDeps`.
-- For the global `wallet` type to work, you have to add the following to your `tsconfig.json`:
-  ```json
-  {
-    "files": ["./node_modules/@metamask/snap-types/global.d.ts"]
-  }
-  ```
+In order to use it at this stage, you should have a local node of Swarm running.
+
+SBT verification was disabled, because the api of `cheshire.wtf` was down from our rate requests.
+
+Now it should be ok, and we are planning to enable it in the future development.

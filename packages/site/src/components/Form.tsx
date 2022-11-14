@@ -7,7 +7,7 @@ import ThumbUpRoundedIcon from '@mui/icons-material/ThumbUpRounded';
 
 // TODO: move to env
 const beeUrl = 'http://localhost:1633';
-// const beeDebugUrl = 'https://gateway-proxy-bee-8-0.gateway.ethswarm.org';
+const beeDebugUrl = 'https://gateway-proxy-bee-8-0.gateway.ethswarm.org';
 const POSTAGE_STAMPS_AMOUNT = BigInt(10000);
 const POSTAGE_STAMPS_DEPTH = 20;
 const bee = new Bee(beeUrl);

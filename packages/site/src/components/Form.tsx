@@ -4,6 +4,7 @@ import { Button } from './Buttons';
 import { IconButton, Stack, TextareaAutosize, Typography } from '@mui/material';
 import ThumbDownRoundedIcon from '@mui/icons-material/ThumbDownRounded';
 import ThumbUpRoundedIcon from '@mui/icons-material/ThumbUpRounded';
+import { CardWrapper } from './Card';
 
 // TODO: move to env
 const beeUrl = 'http://localhost:1633';

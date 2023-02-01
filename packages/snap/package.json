@@ -1,7 +1,6 @@
 {
   "name": "snap",
   "version": "0.1.0",
-  "private": true,
   "description": "The 'Hello, world!' of MetaMask Snaps, now written in TypeScript.",
   "repository": {
     "type": "git",
@@ -27,14 +26,15 @@
     "start": "mm-snap watch"
   },
   "devDependencies": {
+    "@ethersphere/bee-js": "^5.1.0",
     "@lavamoat/allow-scripts": "^2.0.3",
     "@metamask/auto-changelog": "^2.6.0",
     "@metamask/eslint-config": "^10.0.0",
     "@metamask/eslint-config-jest": "^10.0.0",
     "@metamask/eslint-config-nodejs": "^10.0.0",
     "@metamask/eslint-config-typescript": "^10.0.0",
-    "@metamask/snap-types": "^0.22.0",
-    "@metamask/snaps-cli": "^0.22.0",
+    "@metamask/snap-types": "^0.23.0",
+    "@metamask/snaps-cli": "^0.23.0",
     "@typescript-eslint/eslint-plugin": "^5.33.0",
     "@typescript-eslint/parser": "^5.33.0",
     "eslint": "^8.21.0",
@@ -56,5 +56,8 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
+  },
+  "dependencies": {
+    "@ethersphere/bee-js": "^5.1.0"
   }
 }
